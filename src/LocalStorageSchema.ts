@@ -29,7 +29,7 @@ export interface StorageAccessor<T> {
 export class LocalStorageSchema {
   private prefix: string | undefined;
 
-  constructor(options: LocalStorageSchemaOptions) {
+  constructor(options: LocalStorageSchemaOptions = {}) {
     const { prefix } = options;
     this.prefix = prefix;
   }
@@ -37,7 +37,7 @@ export class LocalStorageSchema {
   accessor<T = any>(
     accessorOptions: StorageAccessorOptions<T>
   ): StorageAccessor<T> {
-    const key = `${this.prefix}${accessorOptions.key}`;
+    const key = `${this.prefix || ''}${accessorOptions.key}`;
 
     const {
       defaultValue,
@@ -67,7 +67,6 @@ export class LocalStorageSchema {
           item = unmarshal ? unmarshal(item) : item;
 
           if (validate && !validate(item as T)) {
-            localStorage.removeItem(key);
             throw new Error(`Item is invalid at key: ${key}.`);
           }
 
@@ -77,26 +76,32 @@ export class LocalStorageSchema {
             localStorage.setItem(key, marshal(defaultValue));
           } else if (typeof defaultValue === 'string') {
             localStorage.setItem(key, defaultValue);
-          } else {
+          } else if (defaultValue === undefined) {
             localStorage.removeItem(key);
+          } else {
+            console.warn(
+              `You have provided a non-string default value without a marshal function. This may result in mismatched types.\nkey: ${key}\ndefault value: ${defaultValue}`
+            );
+            localStorage.setItem(key, (defaultValue as unknown) as string);
           }
           return defaultValue;
         }
       },
       set(value: T) {
         if (validate && !validate(value)) {
-          console.error(`Invalid value provided at key: ${key}.`);
+          console.error(`Invalid value provided at key: ${key}.`, value);
           return;
         }
         if (marshal) {
           localStorage.setItem(key, marshal(value));
         } else if (typeof value === 'string') {
           localStorage.setItem(key, value);
+        } else {
+          console.warn(
+            `You have set a non-string value in local storage without marshaling. This may result in mismatched types.\nkey: ${key}\nvalue: ${value}`
+          );
+          localStorage.setItem(key, (value as unknown) as string);
         }
-        console.warn(
-          `You have set a non-string value in local storage without marshaling. This may result in mismatched types.\nkey: ${key}\nvalue: ${value}`
-        );
-        localStorage.setItem(key, (value as unknown) as string);
       },
       remove() {
         localStorage.removeItem(key);
