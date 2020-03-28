@@ -198,14 +198,23 @@ test('LocalStorageSchema can take a prefix for all keys', () => {
   expect(accessor.get()).toBe('hello world');
 });
 
-// test('LocalStorageSchema throws when registering duplicate keys', () => {
-//   StorageBuilder.object('test');
-//   expect(() => StorageBuilder.string('test')).toThrow();
-// });
+test('LocalStorageSchema throws when registering duplicate keys', () => {
+  const schema = new LocalStorageSchema();
+  schema.object({ key: 'test' });
+  expect(() => schema.string({ key: 'test' })).toThrow();
+});
 
-// test('LocalStorageSchema can define an accessor multiple times if registerKey is false', () => {
-//   StorageBuilder.object('test', { registerKey: false });
-//   expect(() =>
-//     StorageBuilder.object('test', { registerKey: false })
-//   ).not.toThrow();
-// });
+test('LocalStorageSchema can define an accessor multiple times if registerKey is false', () => {
+  const schema = new LocalStorageSchema();
+  schema.object({ key: 'test', skipRegistration: true });
+  expect(() =>
+    schema.object({ key: 'test', skipRegistration: true })
+  ).not.toThrow();
+});
+
+test('LocalStorageSchema removes key registration on accessor.remove', () => {
+  const schema = new LocalStorageSchema();
+  const accessor = schema.object({ key: 'test' });
+  accessor.remove();
+  expect(() => schema.object({ key: 'test' })).not.toThrow();
+});

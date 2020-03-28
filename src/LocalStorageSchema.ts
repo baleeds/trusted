@@ -9,6 +9,7 @@ export interface StorageAccessorOptions<T> {
   defaultValue?: T;
   yupSchema?: Schema<T>;
   validate?: (value: T) => boolean;
+  skipRegistration?: boolean;
   unmarshal?: (localValue: string) => T;
   marshal?: (value: T) => string;
 }
@@ -28,10 +29,24 @@ export interface StorageAccessor<T> {
 
 export class LocalStorageSchema {
   private prefix: string | undefined;
+  private registeredKeys: Set<string>;
 
   constructor(options: LocalStorageSchemaOptions = {}) {
     const { prefix } = options;
     this.prefix = prefix;
+    this.registeredKeys = new Set();
+    this.accessor.bind(this);
+  }
+
+  registerKey(key: string) {
+    if (this.registeredKeys.has(key)) {
+      throw new Error(`Key has already been registered: ${key}`);
+    }
+    this.registeredKeys.add(key);
+  }
+
+  unregisterKey(key: string) {
+    this.registeredKeys.delete(key);
   }
 
   accessor<T = any>(
@@ -42,6 +57,7 @@ export class LocalStorageSchema {
     const {
       defaultValue,
       yupSchema,
+      skipRegistration,
       validate = yupSchema
         ? (value: T) => yupSchema.isValidSync(value)
         : undefined,
@@ -49,8 +65,12 @@ export class LocalStorageSchema {
       marshal,
     } = accessorOptions;
 
+    if (!skipRegistration) {
+      this.registerKey(key);
+    }
+
     return {
-      get() {
+      get: () => {
         if (defaultValue && validate && !validate(defaultValue)) {
           throw new Error(
             `Invalid default value provided at key: ${key}.  Please check your yupSchema.`
@@ -87,7 +107,7 @@ export class LocalStorageSchema {
           return defaultValue;
         }
       },
-      set(value: T) {
+      set: (value: T) => {
         if (validate && !validate(value)) {
           console.error(`Invalid value provided at key: ${key}.`, value);
           return;
@@ -103,13 +123,14 @@ export class LocalStorageSchema {
           localStorage.setItem(key, (value as unknown) as string);
         }
       },
-      remove() {
+      remove: () => {
         localStorage.removeItem(key);
+        this.unregisterKey(key);
       },
-      getDefaultValue() {
+      getDefaultValue: () => {
         return accessorOptions.defaultValue;
       },
-      getKey() {
+      getKey: () => {
         return key;
       },
     };
