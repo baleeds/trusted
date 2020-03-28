@@ -1,6 +1,6 @@
-# LocalStorage Schema
+# Trusted
 
-LocalStorage Schema solves three main problems:
+Make localStorage trusted by solving three problems:
 
 - Validate localStorage values against a schema, or using a custom validation function.
 - Set default values to prevent receiving null values.
@@ -11,23 +11,23 @@ LocalStorage Schema solves three main problems:
 Install using npm or yarn.
 
 ```
-npm install --save localstorage-schema
+npm install --save trusted
 ```
 
 or
 
 ```
-yarn add localstorage-schema
+yarn add trusted
 ```
 
 ## Basic Usage
 
 ```javascript
-// Create a new schema.
-const schema = new LocalStorageSchema();
+// Create a new trusted storage.
+const trusted = new Trusted();
 
 // Register a new key/value pair to receive an accessor.
-const greeting = schema.string({ key: 'greeting' });
+const greeting = trusted.string({ key: 'greeting' });
 
 // Use the accessor to get and set the associated value
 greeting.set('hello');
@@ -41,7 +41,7 @@ Validations are configured at the time when the key/value pair is registered.
 Validations can be done using a [Yup](https://github.com/jquense/yup) schema.
 
 ```javascript
-const greeting = schema.string({
+const greeting = trusted.string({
   key: 'greeting',
   yupSchema: Yup.string().min(3),
 });
@@ -56,7 +56,7 @@ greeting.get(); // 'hello'
 Or validations can be done manually using a `validate` function, which returns `true` for valid values.
 
 ```javascript
-const greeting = schema.string({
+const greeting = trusted.string({
   key: 'greeting',
   validation: value => value.length > 3, // return true for valid values.
 });
@@ -73,7 +73,7 @@ greeting.get(); // 'hello'
 Default values are returned when the value being retrieved is null or fails validation. Default values must pass validation, if a validation or schema is available.
 
 ```javascript
-const greeting = schema.string({
+const greeting = trusted.string({
   key: 'greeting',
   yupSchema: Yup.string().oneOf(['hello', 'hola']),
   defaultValue: 'hello',
@@ -89,17 +89,17 @@ greeting.get(); // 'hello'
 The schema supports several built in accessor types.
 
 ```javascript
-schema.string({ key: 'greeting', defaultValue: 'hello' });
+trusted.string({ key: 'greeting', defaultValue: 'hello' });
 
-schema.boolean({ key: 'isGreeting', default: true });
+trusted.boolean({ key: 'isGreeting', default: true });
 
-schema.number({ key: 'timesGreeted', default: 5 });
+trusted.number({ key: 'timesGreeted', default: 5 });
 
-schema.object({ key: 'greeter', default: { id: '1', name: 'John Doe' } });
+trusted.object({ key: 'greeter', default: { id: '1', name: 'John Doe' } });
 
-schema.array({ key: 'availableGreetings', defaultValue: ['hello', 'hola'] });
+trusted.array({ key: 'availableGreetings', defaultValue: ['hello', 'hola'] });
 
-schema.map({
+trusted.map({
   key: 'greetingByLanguage',
   defaultValue: new Map([
     ['en', 'hello'],
@@ -107,7 +107,7 @@ schema.map({
   ]),
 });
 
-schema.set({
+trusted.set({
   key: 'availableGreetings',
   defaultValue: new Set(['hello', 'hola']),
 });
@@ -116,7 +116,7 @@ schema.set({
 Custom accessors can be created, allowing for user-defined marshaling.
 
 ```javascript
-schema.accessor({
+trusted.accessor({
   key: 'greeting',
   marshal: item => item.toString(), // item will be marshaled into string form for localStorage
   unmarshal: string => new Item(string), // string will be unmarshaled back into an Item
@@ -125,10 +125,10 @@ schema.accessor({
 
 ## API Reference
 
-### LocalStorageSchema
+### Trusted
 
 ```javascript
-new LocalStorageSchema(options);
+new Trusted(options);
 ```
 
 | Option     | Type   | Default | Description                                                   |
@@ -138,7 +138,7 @@ new LocalStorageSchema(options);
 ### Accessor
 
 ```javascript
-schema.accessor(options);
+trusted.accessor(options);
 ```
 
 | Option            | Type                  | Default | Description                                                                                                                                          |

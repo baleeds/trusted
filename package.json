@@ -29,9 +29,9 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "localstorage-schema",
+  "name": "trusted",
   "author": "Benjamin Leeds",
-  "module": "dist/localstorage-schema.esm.js",
+  "module": "dist/trusted.esm.js",
   "devDependencies": {
     "@types/jest": "^25.1.4",
     "@types/yup": "^0.26.33",

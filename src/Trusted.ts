@@ -1,6 +1,6 @@
 import { Schema } from 'yup';
 
-export interface LocalStorageSchemaOptions {
+export interface TrustedOptions {
   namespace?: string;
 }
 
@@ -27,11 +27,11 @@ export interface StorageAccessor<T> {
   getDefaultValue: () => T | undefined;
 }
 
-export class LocalStorageSchema {
+export class Trusted {
   private namespace: string | undefined;
   private registeredKeys: Set<string>;
 
-  constructor(options: LocalStorageSchemaOptions = {}) {
+  constructor(options: TrustedOptions = {}) {
     const { namespace } = options;
     this.namespace = namespace;
     this.registeredKeys = new Set();

@@ -1,4 +1,4 @@
-import { LocalStorageSchema } from '../src/LocalStorageSchema';
+import { Trusted } from '../src/Trusted';
 import * as Yup from 'yup';
 
 interface TestObject {
@@ -11,14 +11,14 @@ beforeEach(() => {
   jest.spyOn(console, 'warn').mockImplementation(() => {});
 });
 
-test('LocalStorageSchema can set and get an item', () => {
-  const accessor = new LocalStorageSchema().accessor({ key: 'test' });
+test('Trusted can set and get an item', () => {
+  const accessor = new Trusted().accessor({ key: 'test' });
   accessor.set('hello world');
   expect(accessor.get()).toBe('hello world');
 });
 
-test('LocalStorageSchema can get items with a default value', () => {
-  const accessor = new LocalStorageSchema().accessor({
+test('Trusted can get items with a default value', () => {
+  const accessor = new Trusted().accessor({
     key: 'notSet',
     defaultValue: 'hello world',
   });
@@ -26,9 +26,9 @@ test('LocalStorageSchema can get items with a default value', () => {
   expect(accessor.get()).toBe('hello world');
 });
 
-test('LocalStorageSchema can validate items on get, removing invalid values', () => {
+test('Trusted can validate items on get, removing invalid values', () => {
   localStorage.setItem('test', 'hello country');
-  const accessor = new LocalStorageSchema().accessor({
+  const accessor = new Trusted().accessor({
     key: 'test',
     yupSchema: Yup.string().matches(/world/i),
   });
@@ -36,9 +36,9 @@ test('LocalStorageSchema can validate items on get, removing invalid values', ()
   expect(localStorage.getItem('test')).toBe(null);
 });
 
-test('LocalStorageSchema returns default value when validation fails', () => {
+test('Trusted returns default value when validation fails', () => {
   localStorage.setItem('test', 'hello country');
-  const accessor = new LocalStorageSchema().accessor({
+  const accessor = new Trusted().accessor({
     key: 'test',
     yupSchema: Yup.string().matches(/world/i),
     defaultValue: 'hello world',
@@ -47,8 +47,8 @@ test('LocalStorageSchema returns default value when validation fails', () => {
   expect(localStorage.getItem('test')).toBe('hello world');
 });
 
-test('LocalStorageSchema can accept a unmarshal and marshal function', () => {
-  const accessor = new LocalStorageSchema().accessor({
+test('Trusted can accept a unmarshal and marshal function', () => {
+  const accessor = new Trusted().accessor({
     key: 'test',
     marshal: (value: string) => `${value} world`,
     unmarshal: (localValue: string) => localValue.substr(0, 5),
@@ -59,8 +59,8 @@ test('LocalStorageSchema can accept a unmarshal and marshal function', () => {
   expect(accessor.get()).toBe('hello');
 });
 
-test('LocalStorageSchema can marshal default values', () => {
-  const accessor = new LocalStorageSchema().accessor<TestObject>({
+test('Trusted can marshal default values', () => {
+  const accessor = new Trusted().accessor<TestObject>({
     key: 'unset',
     marshal: JSON.stringify,
     unmarshal: JSON.parse,
@@ -73,8 +73,8 @@ test('LocalStorageSchema can marshal default values', () => {
   );
 });
 
-test('LocalStorageSchema throws an error when default value doesnt pass validation', () => {
-  const accessor = new LocalStorageSchema().accessor({
+test('Trusted throws an error when default value doesnt pass validation', () => {
+  const accessor = new Trusted().accessor({
     key: 'test',
     defaultValue: 'hello country',
     yupSchema: Yup.string().matches(/world/i),
@@ -82,8 +82,8 @@ test('LocalStorageSchema throws an error when default value doesnt pass validati
   expect(() => accessor.get()).toThrow(Error);
 });
 
-test('LocalStorageSchema does nothing when setting an invalid value', () => {
-  const accessor = new LocalStorageSchema().accessor({
+test('Trusted does nothing when setting an invalid value', () => {
+  const accessor = new Trusted().accessor({
     key: 'test',
     yupSchema: Yup.string().matches(/world/i),
   });
@@ -92,8 +92,8 @@ test('LocalStorageSchema does nothing when setting an invalid value', () => {
   expect(accessor.get()).toBe(undefined);
 });
 
-test('LocalStorageSchema string can set and get strings', () => {
-  const testString = new LocalStorageSchema().string({
+test('Trusted string can set and get strings', () => {
+  const testString = new Trusted().string({
     key: 'test',
     defaultValue: 'hello world',
     yupSchema: Yup.string().matches(/world/i),
@@ -105,8 +105,8 @@ test('LocalStorageSchema string can set and get strings', () => {
   expect(testString.get()).toBe('sup world');
 });
 
-test('LocalStorageSchema boolean can set and get booleans', () => {
-  const testBoolean = new LocalStorageSchema().boolean({
+test('Trusted boolean can set and get booleans', () => {
+  const testBoolean = new Trusted().boolean({
     key: 'test',
     defaultValue: true,
     yupSchema: Yup.boolean().oneOf([true]),
@@ -120,8 +120,8 @@ test('LocalStorageSchema boolean can set and get booleans', () => {
   expect(testBoolean.get()).toBe(true);
 });
 
-test('LocalStorageSchema number can set and get numbers', () => {
-  const testNumber = new LocalStorageSchema().number({
+test('Trusted number can set and get numbers', () => {
+  const testNumber = new Trusted().number({
     key: 'test',
     defaultValue: 42,
     yupSchema: Yup.number().oneOf([7, 42]),
@@ -133,8 +133,8 @@ test('LocalStorageSchema number can set and get numbers', () => {
   expect(testNumber.get()).toBe(7);
 });
 
-test('LocalStorageSchema object can set and get objects', () => {
-  const testObject = new LocalStorageSchema().object<TestObject>({
+test('Trusted object can set and get objects', () => {
+  const testObject = new Trusted().object<TestObject>({
     key: 'test',
     defaultValue: { hello: 'world' },
     yupSchema: Yup.object().shape({
@@ -149,8 +149,8 @@ test('LocalStorageSchema object can set and get objects', () => {
   expect(testObject.get()).toMatchObject({ hello: 'state' });
 });
 
-test('LocalStorageSchema array can set and get arrays', () => {
-  const testArray = new LocalStorageSchema().array<TestObject[]>({
+test('Trusted array can set and get arrays', () => {
+  const testArray = new Trusted().array<TestObject[]>({
     key: 'test',
     defaultValue: [{ hello: 'world' }],
     yupSchema: Yup.array().of(
@@ -167,11 +167,11 @@ test('LocalStorageSchema array can set and get arrays', () => {
   expect(testArray.get()).toEqual([{ hello: 'state' }]);
 });
 
-test('LocalStorageSchema Map can set and get Maps', () => {
+test('Trusted Map can set and get Maps', () => {
   const defaultMap = new Map<string, TestObject>();
   defaultMap.set('world', { hello: 'world' });
 
-  const testMap = new LocalStorageSchema().map<string, TestObject>({
+  const testMap = new Trusted().map<string, TestObject>({
     key: 'test',
     defaultValue: defaultMap,
     validate: value => value instanceof Map,
@@ -187,8 +187,8 @@ test('LocalStorageSchema Map can set and get Maps', () => {
   expect(testMap.get()).toEqual(newMap);
 });
 
-test('LocalStorageSchema can take a namespace for all keys', () => {
-  const accessor = new LocalStorageSchema({ namespace: 'blue-' }).accessor({
+test('Trusted can take a namespace for all keys', () => {
+  const accessor = new Trusted({ namespace: 'blue-' }).accessor({
     key: 'test',
   });
 
@@ -198,22 +198,22 @@ test('LocalStorageSchema can take a namespace for all keys', () => {
   expect(accessor.get()).toBe('hello world');
 });
 
-test('LocalStorageSchema throws when registering duplicate keys', () => {
-  const schema = new LocalStorageSchema();
+test('Trusted throws when registering duplicate keys', () => {
+  const schema = new Trusted();
   schema.object({ key: 'test' });
   expect(() => schema.string({ key: 'test' })).toThrow();
 });
 
-test('LocalStorageSchema can define an accessor multiple times if registerKey is false', () => {
-  const schema = new LocalStorageSchema();
+test('Trusted can define an accessor multiple times if registerKey is false', () => {
+  const schema = new Trusted();
   schema.object({ key: 'test', skipRegistration: true });
   expect(() =>
     schema.object({ key: 'test', skipRegistration: true })
   ).not.toThrow();
 });
 
-test('LocalStorageSchema removes key registration on accessor.remove', () => {
-  const schema = new LocalStorageSchema();
+test('Trusted removes key registration on accessor.remove', () => {
+  const schema = new Trusted();
   const accessor = schema.object({ key: 'test' });
   accessor.remove();
   expect(() => schema.object({ key: 'test' })).not.toThrow();

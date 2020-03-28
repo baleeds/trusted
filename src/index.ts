@@ -1,1 +1,1 @@
-export * from './LocalStorageSchema';
+export * from './Trusted';
