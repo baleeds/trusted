@@ -1,7 +1,7 @@
 import { Schema } from 'yup';
 
 export interface LocalStorageSchemaOptions {
-  prefix?: string;
+  namespace?: string;
 }
 
 export interface StorageAccessorOptions<T> {
@@ -28,12 +28,12 @@ export interface StorageAccessor<T> {
 }
 
 export class LocalStorageSchema {
-  private prefix: string | undefined;
+  private namespace: string | undefined;
   private registeredKeys: Set<string>;
 
   constructor(options: LocalStorageSchemaOptions = {}) {
-    const { prefix } = options;
-    this.prefix = prefix;
+    const { namespace } = options;
+    this.namespace = namespace;
     this.registeredKeys = new Set();
     this.accessor.bind(this);
   }
@@ -52,7 +52,7 @@ export class LocalStorageSchema {
   accessor<T = any>(
     accessorOptions: StorageAccessorOptions<T>
   ): StorageAccessor<T> {
-    const key = `${this.prefix || ''}${accessorOptions.key}`;
+    const key = `${this.namespace || ''}${accessorOptions.key}`;
 
     const {
       defaultValue,

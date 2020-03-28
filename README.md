@@ -4,7 +4,7 @@ LocalStorage Schema solves three main problems:
 
 - Validate localStorage values against a schema, or using a custom validation function.
 - Set default values to prevent receiving null values.
-- Prevent designating the same key twice.
+- Prevent designating the same key multiple times.
 
 ## Install
 
@@ -34,7 +34,7 @@ greeting.set('hello');
 greeting.get(); // 'hello'
 ```
 
-## Adding validations
+## Adding Validations
 
 Validations are configured at the time when the key/value pair is registered.
 
@@ -68,9 +68,9 @@ greeting.set('hello');
 greeting.get(); // 'hello'
 ```
 
-## Adding default values
+## Adding Default Values
 
-Default values are returned when the value being retrieved is null or fails validation. Default values must pass validation.
+Default values are returned when the value being retrieved is null or fails validation. Default values must pass validation, if a validation or schema is available.
 
 ```javascript
 const greeting = schema.string({
@@ -84,9 +84,9 @@ localStorage.setItem('greeting', 'sup'); // Manually set invalid value
 greeting.get(); // 'hello'
 ```
 
-## Schema accessor types
+## Schema Accessor Types
 
-The schema supports several build in accessor types.
+The schema supports several built in accessor types.
 
 ```javascript
 schema.string({ key: 'greeting', defaultValue: 'hello' });
@@ -113,7 +113,7 @@ schema.set({
 });
 ```
 
-Custom accessor types can be created, allowing for custom marshaling.
+Custom accessors can be created, allowing for user-defined marshaling.
 
 ```javascript
 schema.accessor({
@@ -122,3 +122,39 @@ schema.accessor({
   unmarshal: string => new Item(string), // string will be unmarshaled back into an Item
 });
 ```
+
+## API Reference
+
+### LocalStorageSchema
+
+```javascript
+new LocalStorageSchema(options);
+```
+
+| Option     | Type   | Default | Description                                                   |
+| ---------- | ------ | ------- | ------------------------------------------------------------- |
+| namespace? | string | --      | String to be used as a prefix for all entries in localStorage |
+
+### Accessor
+
+```javascript
+schema.accessor(options);
+```
+
+| Option            | Type                  | Default | Description                                                                                                                                          |
+| ----------------- | --------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| key               | string                | --      | String to be used as key for localStorage. Will be prefixed with schema's namespace.                                                                 |
+| defaultValue?     | T                     | --      | Value to be returned by `get` when localStorage value is invalid or doesn't exist.                                                                   |
+| yupSchema?        | Schema<T>             | --      | Yup schema used to validate values being set and read from localStorage.                                                                             |
+| validate?         | (value: T) => boolean | --      | Function used to validate values being set and read from localStorage. Valid values should return true.                                              |
+| skipRegistration? | boolean               | false   | By default, keys are registered to the schema to prevent the same key from having multiple accessors. To allow multiple accessors per key, pass true |
+| marshal?          | (value: T) => string  | --      | Function used to convert value into a string for localStorage.                                                                                       |
+| unmarshal?        | (local: string) => T  | --      | Function used to convert the localStorage string into the returned value.                                                                            |
+
+### Type Accessor
+
+```javascript
+schema.string(options);
+```
+
+_Same as Accessor options, except without `marshal` and `unmarshal` since that is handled by the specified type._

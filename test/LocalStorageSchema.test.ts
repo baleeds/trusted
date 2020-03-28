@@ -187,8 +187,8 @@ test('LocalStorageSchema Map can set and get Maps', () => {
   expect(testMap.get()).toEqual(newMap);
 });
 
-test('LocalStorageSchema can take a prefix for all keys', () => {
-  const accessor = new LocalStorageSchema({ prefix: 'blue-' }).accessor({
+test('LocalStorageSchema can take a namespace for all keys', () => {
+  const accessor = new LocalStorageSchema({ namespace: 'blue-' }).accessor({
     key: 'test',
   });
 
