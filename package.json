@@ -30,6 +30,18 @@
     "trailingComma": "es5"
   },
   "name": "trusted",
+  "description": "⚖️ Trustworthy localStorage.  Validate against a schema, set default values.",
+  "keywords": [
+    "localStorage",
+    "yup",
+    "schema",
+    "default",
+    "trustworthy",
+    "validate",
+    "valid",
+    "typescript",
+    "javascript"
+  ],
   "author": "Benjamin Leeds",
   "module": "dist/trusted.esm.js",
   "devDependencies": {
