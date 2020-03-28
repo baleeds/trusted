@@ -1,5 +1,9 @@
 # Trusted
 
+[![npm](https://img.shields.io/npm/v/trusted.svg?style=flat-square)](https://www.npmjs.com/package/trusted)
+![CI](https://github.com/baleeds/trusted/workflows/CI/badge.svg)
+[![codecov](https://codecov.io/gh/baleeds/trusted/branch/master/graph/badge.svg)](https://codecov.io/gh/baleeds/trusted)
+
 Make localStorage trusted by solving three problems:
 
 - Validate localStorage values against a schema, or using a custom validation function.
