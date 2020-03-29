@@ -127,38 +127,138 @@ trusted.accessor({
 });
 ```
 
-## API Reference
+# API Reference
 
-### Trusted
+## Trusted
 
-```javascript
-new Trusted(options);
-```
+`Trusted` is the provisioner of new accessors. It maintains global configuration and ensures key uniqueness.
 
-| Option     | Type   | Default | Description                                                   |
-| ---------- | ------ | ------- | ------------------------------------------------------------- |
-| namespace? | string | --      | String to be used as a prefix for all entries in localStorage |
-
-### Accessor
+### Example
 
 ```javascript
-trusted.accessor(options);
+const trusted = new Trusted(options);
 ```
 
-| Option            | Type                  | Default | Description                                                                                                                                          |
-| ----------------- | --------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| key               | string                | --      | String to be used as key for localStorage. Will be prefixed with schema's namespace.                                                                 |
-| defaultValue?     | T                     | --      | Value to be returned by `get` when localStorage value is invalid or doesn't exist.                                                                   |
-| yupSchema?        | Schema<T>             | --      | Yup schema used to validate values being set and read from localStorage.                                                                             |
-| validate?         | (value: T) => boolean | --      | Function used to validate values being set and read from localStorage. Valid values should return true.                                              |
-| skipRegistration? | boolean               | false   | By default, keys are registered to the schema to prevent the same key from having multiple accessors. To allow multiple accessors per key, pass true |
-| marshal?          | (value: T) => string  | --      | Function used to convert value into a string for localStorage.                                                                                       |
-| unmarshal?        | (local: string) => T  | --      | Function used to convert the localStorage string into the returned value.                                                                            |
+### Options
 
-### Type Accessor
+`namespace?: string`
 
-```javascript
-schema.string(options);
+String to be used as a prefix for all entries in localStorage.
+
+### Methods
+
+`registerKey: (key: string) => void`
+
+Register a new key. Keys are automatically registered when a new accessor is provisioned, unless otherwise specified. If the provided key is already registered, and exception is thrown.
+
+`unregisterKey: (key: string) => void`
+
+Unregister a key. Keys are never unregistered automatically.
+
+`accessor<T>: (options: TrustedAccessorOptions<T>) => TrustedAccessor<T>`
+
+Provision a new accessor. Accessors can be provided with custom marshaling for localStorage compatibility. Provisioning a new accessor will automatically register the provided key.
+
+`string<T = string>: (options: TrustedTypeAccessorOptions<T>) => TrustedAccessor<T>`
+
+Provision a string accessor. Providing a type enable using the string accessor for unions or enums.
+
+`boolean: (options: TrustedTypeAccessorOptions<boolean>) => TrustedAccessor<boolean>`
+
+Provision a boolean accessor.
+
+`number: (options: TrustedTypeAccessorOptions<number>) => TrustedAccessor<number>`
+
+Provision a number accessor.
+
+`object<T extends Record<any, any>>: (options: TrustedTypeAccessorOptions<T>) => TrustedAccessor<T>`
+
+Provision an object accessor.
+
+`array<T extends Array<any>>: (options: TrustedTypeAccessorOptions<T>) => TrustedAccessor<T>`
+
+Provision an array accessor.
+
+`map<K extends string | number | symbol, T>: (accessorOptions: TrustedTypeAccessorOptions<Map<K, T>>) => TrustedAccessor<Map<K, T>>`
+
+Provision a Map accessor.
+
+`set<T extends Set<any>>: (options: TrustedTypeAccessorOptions<T>) => TrustedAccessor<T>`
+
+Provision a Set accessor.
+
+## TrustedAccessor
+
+Accessors are used to safely get and set values in localStorage. Accessors pertain to a specific key and hold configuration for validation, default values, and marshaling.
+
+### Example
+
+```typescript
+const greeter = trusted.object<Greeter>({
+  key: 'greeter',
+  defaultValue: {
+    id: '1',
+    name: 'Luke',
+  },
+  yupSchema: Yup.object().shape({
+    id: Yup.string().required(),
+    name: Yup.string().required(),
+  }),
+});
 ```
 
-_Same as Accessor options, except without `marshal` and `unmarshal` since that is handled by the specified type._
+### TrustedAccessorOptions<T>
+
+`key: string`
+
+Key to be used for storing value in localStorage. Keys are automatically registered when the accessor is provisioned, meaning they can't be used more than once, unless otherwise specified.
+
+`defaultValue?: T`
+
+Default value to be return from `get()` when the localStorage value is null or fails validation. If the default value fails validation, an exception is thrown.
+
+`yupSchema?: Schema<T>`
+
+[Yup](https://github.com/jquense/yup) schema to be used for validation. Validation runs on `get()` and `set()`.
+
+`validate?: (value: T) => boolean`
+
+Function that returns true for valid options, and false otherwise. Validation runs on `get()` and `set()`.
+
+`skipRegistration?: boolean`
+
+When an accessor needs to be provisioned more than once for the same key, registration must be skipped, otherwise the duplicate key will be prevented. When true, `skipRegistration` will completely ignore the key registry.
+
+`marshal?: (value: T) => string`
+
+Only available for `Trusted.accessor`. Marshaling is used to "stringify" values which don't have a reversible `toString` or `JSON.stringiy()` result. Examples include Maps and Sets. The `marshal` function should accept a value and return its string representation.
+
+`unmarshal?: (localString: string) => value`
+
+Only available for `Trusted.accessor`. Unmarshaling is used to reverse the marshaling provided above. The `unmarshal` function should take a string representation and return the hydrated item.
+
+### Methods
+
+`get: () => T | undefined`
+
+Gets the unmarshaled value from localStorage. If the item is not found in localStorage, the default value will be returned. If the default value is returned, the localStorage value will be set to the marshaled default value.
+
+`set: (value: T) => void`
+
+Sets a marshaled value in localStorage. If the item fails validation, an error is logged and `set` results in a no-op.
+
+`remove: () => void`
+
+Remove the value from localStorage.
+
+`unregister: () => void`
+
+Unregister the accessor's key from the Trusted key registry.
+
+`getKey: () => string`
+
+Return the accessor's key.
+
+`getDefaultValue: () => T | undefined`
+
+Return the accessor's default value, if one was provided.
