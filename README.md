@@ -7,7 +7,7 @@
 Make localStorage trusted by solving three problems:
 
 - Validate localStorage values against a schema, or using a custom validation function.
-- Set default values to prevent receiving null values.
+- Set default values to prevent receiving null.
 - Prevent designating the same key multiple times.
 
 ## Install
@@ -30,7 +30,7 @@ yarn add trusted
 // Create a new trusted storage.
 const trusted = new Trusted();
 
-// Register a new key/value pair to receive an accessor.
+// Create an accessor.
 const greeting = trusted.string({ key: 'greeting' });
 
 // Use the accessor to get and set the associated value
@@ -40,7 +40,7 @@ greeting.get(); // 'hello'
 
 ## Adding Validations
 
-Validations are configured at the time when the key/value pair is registered.
+Validations are configured when creating the accessor.
 
 Validations can be done using a [Yup](https://github.com/jquense/yup) schema.
 
@@ -62,7 +62,7 @@ Or validations can be done manually using a `validate` function, which returns `
 ```javascript
 const greeting = trusted.string({
   key: 'greeting',
-  validation: value => value.length > 3, // return true for valid values.
+  validation: value => value.length > 3,
 });
 
 greeting.set('hi'); // console.error
@@ -74,7 +74,7 @@ greeting.get(); // 'hello'
 
 ## Adding Default Values
 
-Default values are returned when the value being retrieved is null or fails validation. Default values must pass validation, if a validation or schema is available.
+Default values are returned when the value being retrieved is null or fails validation. Default values must pass validation.
 
 ```javascript
 const greeting = trusted.string({
@@ -90,7 +90,7 @@ greeting.get(); // 'hello'
 
 ## Schema Accessor Types
 
-The schema supports several built in accessor types.
+The schema supports several built-in accessor types.
 
 ```javascript
 trusted.string({ key: 'greeting', defaultValue: 'hello' });
@@ -163,7 +163,7 @@ Provision a new accessor. Accessors can be provided with custom marshaling for l
 
 `string<T = string>: (options: TrustedTypeAccessorOptions<T>) => TrustedAccessor<T>`
 
-Provision a string accessor. Providing a type enable using the string accessor for unions or enums.
+Provision a string accessor. Providing a type enables using the string accessor for unions or enums.
 
 `boolean: (options: TrustedTypeAccessorOptions<boolean>) => TrustedAccessor<boolean>`
 
@@ -200,6 +200,11 @@ Accessors are used to safely get and set values in localStorage. Accessors perta
 ### Example
 
 ```typescript
+interface Greeter {
+  id: string;
+  name: string;
+}
+
 const greeter = trusted.object<Greeter>({
   key: 'greeter',
   defaultValue: {
@@ -217,7 +222,7 @@ const greeter = trusted.object<Greeter>({
 
 `key: string`
 
-Key to be used for storing value in localStorage. Keys are automatically registered when the accessor is provisioned, meaning they can't be used more than once, unless otherwise specified.
+Key to be used for storing value in localStorage. Key will be prefixed with the provided namespace. Keys are automatically registered when the accessor is provisioned, meaning they can't be used more than once, unless otherwise specified.
 
 `defaultValue?: T`
 
@@ -233,11 +238,11 @@ Function that returns true for valid options, and false otherwise. Validation ru
 
 `skipRegistration?: boolean`
 
-When an accessor needs to be provisioned more than once for the same key, registration must be skipped, otherwise the duplicate key will be prevented. When true, `skipRegistration` will completely ignore the key registry.
+When an accessor needs to be provisioned more than once for the same key, registration must be skipped, otherwise the duplicate key will be cause an exception. When true, `skipRegistration` will ignore the key registry.
 
 `marshal?: (value: T) => string`
 
-Only available for `Trusted.accessor`. Marshaling is used to "stringify" values which don't have a reversible `toString` or `JSON.stringiy()` result. Examples include Maps and Sets. The `marshal` function should accept a value and return its string representation.
+Only available for `Trusted.accessor`. Marshaling is used to "stringify" values for storage in localStorage (which only allows strings). Many types can be marshaled using `JSON.stringify`, but some require more complex logic, like Maps and Sets. The `marshal` function should accept a value and return its string representation.
 
 `unmarshal?: (localString: string) => value`
 
