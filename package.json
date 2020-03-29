@@ -43,6 +43,11 @@
     "javascript"
   ],
   "author": "Benjamin Leeds",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com:baleeds/trusted.git"
+  },
+  "homepage": "https://github.com/baleeds/trusted",
   "module": "dist/trusted.esm.js",
   "devDependencies": {
     "@types/jest": "^25.1.4",
