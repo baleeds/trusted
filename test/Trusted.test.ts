@@ -207,7 +207,7 @@ test('Trusted Set can get and set Sets', () => {
 });
 
 test('Trusted date can get and set dates', () => {
-  const defaultDate = new Date();
+  const defaultDate = new Date('2020-03-28');
   const testDate = new Trusted().date({
     key: 'test',
     defaultValue: defaultDate,
@@ -219,7 +219,7 @@ test('Trusted date can get and set dates', () => {
   expect(localStorage.getItem('test')).toBe(null);
   expect(testDate.get()).toEqual(defaultDate);
 
-  const newDate = new Date();
+  const newDate = new Date('2020-03-30');
   testDate.set(newDate);
   expect(testDate.get()).toEqual(newDate);
 });

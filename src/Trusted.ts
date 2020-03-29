@@ -198,11 +198,11 @@ export class Trusted {
     });
   }
 
-  date<T extends Date>(accessorOptions: TrustedAccessorOptions<T>) {
-    return this.accessor<T>({
+  date(accessorOptions: TrustedAccessorOptions<Date>) {
+    return this.accessor<Date>({
       ...accessorOptions,
-      marshal: JSON.stringify,
-      unmarshal: JSON.parse,
+      marshal: value => value.toISOString(),
+      unmarshal: (localString: string) => new Date(localString),
     });
   }
 }
