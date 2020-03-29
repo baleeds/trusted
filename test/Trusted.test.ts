@@ -74,12 +74,13 @@ test('Trusted can marshal default values', () => {
 });
 
 test('Trusted throws an error when default value doesnt pass validation', () => {
-  const accessor = new Trusted().accessor({
-    key: 'test',
-    defaultValue: 'hello country',
-    yupSchema: Yup.string().matches(/world/i),
-  });
-  expect(() => accessor.get()).toThrow(Error);
+  expect(() =>
+    new Trusted().accessor({
+      key: 'test',
+      defaultValue: 'hello country',
+      yupSchema: Yup.string().matches(/world/i),
+    })
+  ).toThrow(Error);
 });
 
 test('Trusted does nothing when setting an invalid value', () => {

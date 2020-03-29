@@ -4,7 +4,7 @@ export interface TrustedOptions {
   namespace?: string;
 }
 
-export interface StorageAccessorOptions<T> {
+export interface TrustedAccessorOptions<T> {
   key: string;
   defaultValue?: T;
   yupSchema?: Schema<T>;
@@ -14,12 +14,12 @@ export interface StorageAccessorOptions<T> {
   marshal?: (value: T) => string;
 }
 
-export type TypeStorageAccessorOptions<T> = Omit<
-  StorageAccessorOptions<T>,
+export type TrustedTypeAccessorOptions<T> = Omit<
+  TrustedAccessorOptions<T>,
   'marshal' | 'unmarshal'
 >;
 
-export interface StorageAccessor<T> {
+export interface TrustedAccessor<T> {
   get: () => T | undefined;
   set: (value: T) => void;
   remove: () => void;
@@ -51,8 +51,8 @@ export class Trusted {
   }
 
   accessor<T = any>(
-    accessorOptions: StorageAccessorOptions<T>
-  ): StorageAccessor<T> {
+    accessorOptions: TrustedAccessorOptions<T>
+  ): TrustedAccessor<T> {
     const key = `${this.namespace || ''}${accessorOptions.key}`;
 
     const {
@@ -66,18 +66,18 @@ export class Trusted {
       marshal,
     } = accessorOptions;
 
+    if (defaultValue && validate && !validate(defaultValue)) {
+      throw new Error(
+        `Invalid default value provided at key: ${key}.  Please check your yupSchema.`
+      );
+    }
+
     if (!skipRegistration) {
       this.registerKey(key);
     }
 
     return {
       get: () => {
-        if (defaultValue && validate && !validate(defaultValue)) {
-          throw new Error(
-            `Invalid default value provided at key: ${key}.  Please check your yupSchema.`
-          );
-        }
-
         let item;
         try {
           item = localStorage.getItem(key);
@@ -140,12 +140,12 @@ export class Trusted {
   }
 
   string<T extends string = string>(
-    accessorOptions: TypeStorageAccessorOptions<T>
+    accessorOptions: TrustedTypeAccessorOptions<T>
   ) {
     return this.accessor<T>(accessorOptions);
   }
 
-  boolean(accessorOptions: TypeStorageAccessorOptions<boolean>) {
+  boolean(accessorOptions: TrustedTypeAccessorOptions<boolean>) {
     return this.accessor<boolean>({
       ...accessorOptions,
       marshal: JSON.stringify,
@@ -154,7 +154,7 @@ export class Trusted {
   }
 
   object<T extends Record<any, any>>(
-    accessorOptions: TypeStorageAccessorOptions<T>
+    accessorOptions: TrustedTypeAccessorOptions<T>
   ) {
     return this.accessor<T>({
       ...accessorOptions,
@@ -163,7 +163,7 @@ export class Trusted {
     });
   }
 
-  number(accessorOptions: TypeStorageAccessorOptions<number>) {
+  number(accessorOptions: TrustedTypeAccessorOptions<number>) {
     return this.accessor<number>({
       ...accessorOptions,
       marshal: JSON.stringify,
@@ -171,7 +171,7 @@ export class Trusted {
     });
   }
 
-  array<T extends Array<any>>(accessorOptions: TypeStorageAccessorOptions<T>) {
+  array<T extends Array<any>>(accessorOptions: TrustedTypeAccessorOptions<T>) {
     return this.accessor<T>({
       ...accessorOptions,
       marshal: JSON.stringify,
@@ -180,7 +180,7 @@ export class Trusted {
   }
 
   map<K extends string | number | symbol, T>(
-    accessorOptions: TypeStorageAccessorOptions<Map<K, T>>
+    accessorOptions: TrustedTypeAccessorOptions<Map<K, T>>
   ) {
     return this.accessor<Map<K, T>>({
       ...accessorOptions,
