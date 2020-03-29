@@ -103,6 +103,8 @@ trusted.object({ key: 'greeter', default: { id: '1', name: 'John Doe' } });
 
 trusted.array({ key: 'availableGreetings', defaultValue: ['hello', 'hola'] });
 
+trusted.date({ key: 'greetedAt', defaultValue: new Date() });
+
 trusted.map({
   key: 'greetingByLanguage',
   defaultValue: new Map([
@@ -178,6 +180,10 @@ Provision an object accessor.
 `array<T>: (options: TrustedTypeAccessorOptions<T[]>) => TrustedAccessor<T[]>`
 
 Provision an array accessor.
+
+`date: (options: TrustedTypeAccessorOptions<Date>) => TrustedTypeAccessor<Date>`
+
+Provision a date accessor.
 
 `map<K extends string | number | symbol, T>: (accessorOptions: TrustedTypeAccessorOptions<Map<K, T>>) => TrustedAccessor<Map<K, T>>`
 
