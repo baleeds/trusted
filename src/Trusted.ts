@@ -171,8 +171,8 @@ export class Trusted {
     });
   }
 
-  array<T extends Array<any>>(accessorOptions: TrustedTypeAccessorOptions<T>) {
-    return this.accessor<T>({
+  array<T>(accessorOptions: TrustedTypeAccessorOptions<T[]>) {
+    return this.accessor<T[]>({
       ...accessorOptions,
       marshal: JSON.stringify,
       unmarshal: JSON.parse,
@@ -185,7 +185,16 @@ export class Trusted {
     return this.accessor<Map<K, T>>({
       ...accessorOptions,
       marshal: (map: Map<K, T>) => JSON.stringify(Array.from(map)),
-      unmarshal: (localValue: string) => new Map<K, T>(JSON.parse(localValue)),
+      unmarshal: (localString: string) =>
+        new Map<K, T>(JSON.parse(localString)),
+    });
+  }
+
+  set<T>(accessorOptions: TrustedAccessorOptions<Set<T>>) {
+    return this.accessor<Set<T>>({
+      ...accessorOptions,
+      marshal: (set: Set<T>) => JSON.stringify(Array.from(set)),
+      unmarshal: (localString: string) => new Set<T>(JSON.parse(localString)),
     });
   }
 }

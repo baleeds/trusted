@@ -175,7 +175,7 @@ Provision a number accessor.
 
 Provision an object accessor.
 
-`array<T extends Array<any>>: (options: TrustedTypeAccessorOptions<T>) => TrustedAccessor<T>`
+`array<T>: (options: TrustedTypeAccessorOptions<T[]>) => TrustedAccessor<T[]>`
 
 Provision an array accessor.
 
@@ -183,7 +183,7 @@ Provision an array accessor.
 
 Provision a Map accessor.
 
-`set<T extends Set<any>>: (options: TrustedTypeAccessorOptions<T>) => TrustedAccessor<T>`
+`set<T>: (options: TrustedTypeAccessorOptions<Set<T>>) => TrustedAccessor<Set<T>>`
 
 Provision a Set accessor.
 

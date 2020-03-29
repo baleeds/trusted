@@ -151,7 +151,7 @@ test('Trusted object can set and get objects', () => {
 });
 
 test('Trusted array can set and get arrays', () => {
-  const testArray = new Trusted().array<TestObject[]>({
+  const testArray = new Trusted().array<TestObject>({
     key: 'test',
     defaultValue: [{ hello: 'world' }],
     yupSchema: Yup.array().of(
@@ -186,6 +186,24 @@ test('Trusted Map can set and get Maps', () => {
   const newMap = new Map<string, TestObject>([['world', { hello: 'state' }]]);
   testMap.set(newMap);
   expect(testMap.get()).toEqual(newMap);
+});
+
+test('Trusted Set can get and set Sets', () => {
+  const defaultSet = new Set<string>(['hello', 'world']);
+  const testSet = new Trusted().set<string>({
+    key: 'test',
+    defaultValue: defaultSet,
+    validate: value => value instanceof Set,
+  });
+
+  // @ts-ignore
+  testSet.set('hello');
+  expect(localStorage.getItem('test')).toBe(null);
+  expect(testSet.get()).toEqual(defaultSet);
+
+  const newSet = new Set<string>(['sup', 'hello']);
+  testSet.set(newSet);
+  expect(testSet.get()).toEqual(newSet);
 });
 
 test('Trusted can take a namespace for all keys', () => {
