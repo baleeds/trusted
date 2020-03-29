@@ -181,7 +181,7 @@ Provision an object accessor.
 
 Provision an array accessor.
 
-`date<T extends Date>: (options: TrustedTypeAccessorOptions<T>) => TrustedTypeAccessor<T>`
+`date: (options: TrustedTypeAccessorOptions<Date>) => TrustedTypeAccessor<Date>`
 
 Provision a date accessor.
 
