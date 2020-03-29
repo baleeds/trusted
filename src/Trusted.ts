@@ -23,6 +23,7 @@ export interface StorageAccessor<T> {
   get: () => T | undefined;
   set: (value: T) => void;
   remove: () => void;
+  unregister: () => void;
   getKey: () => string;
   getDefaultValue: () => T | undefined;
 }
@@ -125,6 +126,8 @@ export class Trusted {
       },
       remove: () => {
         localStorage.removeItem(key);
+      },
+      unregister: () => {
         this.unregisterKey(key);
       },
       getDefaultValue: () => {

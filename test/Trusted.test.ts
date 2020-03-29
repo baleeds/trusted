@@ -199,22 +199,30 @@ test('Trusted can take a namespace for all keys', () => {
 });
 
 test('Trusted throws when registering duplicate keys', () => {
-  const schema = new Trusted();
-  schema.object({ key: 'test' });
-  expect(() => schema.string({ key: 'test' })).toThrow();
+  const trusted = new Trusted();
+  trusted.object({ key: 'test' });
+  expect(() => trusted.string({ key: 'test' })).toThrow();
 });
 
 test('Trusted can define an accessor multiple times if registerKey is false', () => {
-  const schema = new Trusted();
-  schema.object({ key: 'test', skipRegistration: true });
+  const trusted = new Trusted();
+  trusted.object({ key: 'test', skipRegistration: true });
   expect(() =>
-    schema.object({ key: 'test', skipRegistration: true })
+    trusted.object({ key: 'test', skipRegistration: true })
   ).not.toThrow();
 });
 
-test('Trusted removes key registration on accessor.remove', () => {
-  const schema = new Trusted();
-  const accessor = schema.object({ key: 'test' });
+test('Trusted removes key registration on accessor.unregister', () => {
+  const trusted = new Trusted();
+  const accessor = trusted.object({ key: 'test' });
+  accessor.unregister();
+  expect(() => trusted.object({ key: 'test' })).not.toThrow();
+});
+
+test('Trusted accessors can remove their value from localStorage', () => {
+  const accessor = new Trusted().accessor({ key: 'test' });
+  accessor.set('hello world');
+  expect(localStorage.getItem('test')).toBe('hello world');
   accessor.remove();
-  expect(() => schema.object({ key: 'test' })).not.toThrow();
+  expect(localStorage.getItem('test')).toBe(null);
 });
