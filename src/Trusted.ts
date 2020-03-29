@@ -72,6 +72,12 @@ export class Trusted {
       );
     }
 
+    if (defaultValue && typeof defaultValue !== 'string' && !marshal) {
+      throw new Error(
+        `Invalid configuration provided at key: ${key}.  Non-string default values must be accompanied by a marshal function.`
+      );
+    }
+
     if (!skipRegistration) {
       this.registerKey(key);
     }
@@ -99,11 +105,6 @@ export class Trusted {
             localStorage.setItem(key, defaultValue);
           } else if (defaultValue === undefined) {
             localStorage.removeItem(key);
-          } else {
-            console.warn(
-              `You have provided a non-string default value without a marshal function. This may result in mismatched types.\nkey: ${key}\ndefault value: ${defaultValue}`
-            );
-            localStorage.setItem(key, (defaultValue as unknown) as string);
           }
           return defaultValue;
         }
@@ -119,9 +120,8 @@ export class Trusted {
           localStorage.setItem(key, value);
         } else {
           console.warn(
-            `You have set a non-string value in local storage without marshaling. This may result in mismatched types.\nkey: ${key}\nvalue: ${value}`
+            `You have attempted to set a non-string value in local storage without marshaling. This operation has been prevented.\nkey: ${key}\nvalue: ${value}`
           );
-          localStorage.setItem(key, (value as unknown) as string);
         }
       },
       remove: () => {

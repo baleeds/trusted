@@ -1,4 +1,4 @@
-import { Trusted } from '../src/Trusted';
+import { Trusted } from '../src';
 import * as Yup from 'yup';
 
 interface TestObject {
@@ -244,4 +244,32 @@ test('Trusted accessors can remove their value from localStorage', () => {
   expect(localStorage.getItem('test')).toBe('hello world');
   accessor.remove();
   expect(localStorage.getItem('test')).toBe(null);
+});
+
+test('Trusted throws an error when a non-string default value has no marshal function', () => {
+  expect(() =>
+    new Trusted().accessor({ key: 'test', defaultValue: 1 })
+  ).toThrow();
+});
+
+test('Trusted shows a warning and noops when setting a non-string value without marshaling', () => {
+  const accessor = new Trusted().accessor({ key: 'test' });
+  accessor.set(3);
+  expect(console.warn).toHaveBeenCalled();
+  expect(localStorage.getItem('test')).toBe(null);
+});
+
+test('Trusted accessors can return default value', () => {
+  const accessor = new Trusted().accessor({
+    key: 'test',
+    defaultValue: 'hello world',
+  });
+  expect(accessor.getDefaultValue()).toBe('hello world');
+});
+
+test('Trusted accessors can return their key', () => {
+  const accessor = new Trusted().accessor({
+    key: 'test',
+  });
+  expect(accessor.getKey()).toBe('test');
 });
