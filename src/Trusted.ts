@@ -197,4 +197,12 @@ export class Trusted {
       unmarshal: (localString: string) => new Set<T>(JSON.parse(localString)),
     });
   }
+
+  date(accessorOptions: TrustedAccessorOptions<Date>) {
+    return this.accessor<Date>({
+      ...accessorOptions,
+      marshal: value => value.toISOString(),
+      unmarshal: (localString: string) => new Date(localString),
+    });
+  }
 }

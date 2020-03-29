@@ -206,6 +206,24 @@ test('Trusted Set can get and set Sets', () => {
   expect(testSet.get()).toEqual(newSet);
 });
 
+test('Trusted date can get and set dates', () => {
+  const defaultDate = new Date('2020-03-28');
+  const testDate = new Trusted().date({
+    key: 'test',
+    defaultValue: defaultDate,
+    validate: value => value instanceof Date,
+  });
+
+  // @ts-ignore
+  testDate.set('hello');
+  expect(localStorage.getItem('test')).toBe(null);
+  expect(testDate.get()).toEqual(defaultDate);
+
+  const newDate = new Date('2020-03-30');
+  testDate.set(newDate);
+  expect(testDate.get()).toEqual(newDate);
+});
+
 test('Trusted can take a namespace for all keys', () => {
   const accessor = new Trusted({ namespace: 'blue-' }).accessor({
     key: 'test',
