@@ -1,6 +1,6 @@
 # Trusted
 
-[![npm](https://img.shields.io/npm/v/trusted.svg?style=flat-square)](https://www.npmjs.com/package/trusted)
+[![npm version](https://badge.fury.io/js/trusted.svg)](https://badge.fury.io/js/trusted)
 ![CI](https://github.com/baleeds/trusted/workflows/CI/badge.svg)
 [![codecov](https://codecov.io/gh/baleeds/trusted/branch/master/graph/badge.svg)](https://codecov.io/gh/baleeds/trusted)
 
