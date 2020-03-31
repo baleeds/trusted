@@ -20,12 +20,12 @@ export type TrustedTypeAccessorOptions<T> = Omit<
 >;
 
 export interface TrustedAccessor<T> {
-  get: () => T | undefined;
+  get: () => T;
   set: (value: T) => void;
   remove: () => void;
   unregister: () => void;
   getKey: () => string;
-  getDefaultValue: () => T | undefined;
+  getDefaultValue: () => T;
 }
 
 export class Trusted {
@@ -50,13 +50,18 @@ export class Trusted {
     this.registeredKeys.delete(key);
   }
 
-  accessor<T = any>(
-    accessorOptions: TrustedAccessorOptions<T>
-  ): TrustedAccessor<T> {
-    const key = `${this.namespace || ''}${accessorOptions.key}`;
+  accessor<T>(
+    options: TrustedAccessorOptions<T> & { defaultValue: T }
+  ): TrustedAccessor<T>;
+  accessor<T>(
+    options: TrustedAccessorOptions<T>
+  ): TrustedAccessor<T | undefined>;
+  accessor<T>(
+    options: TrustedAccessorOptions<T>
+  ): TrustedAccessor<T | undefined> {
+    const key = `${this.namespace || ''}${options.key}`;
 
     const {
-      defaultValue,
       yupSchema,
       skipRegistration,
       validate = yupSchema
@@ -64,7 +69,8 @@ export class Trusted {
         : undefined,
       unmarshal,
       marshal,
-    } = accessorOptions;
+      defaultValue,
+    } = options;
 
     if (defaultValue && validate && !validate(defaultValue)) {
       throw new Error(
@@ -109,12 +115,12 @@ export class Trusted {
           return defaultValue;
         }
       },
-      set: (value: T) => {
-        if (validate && !validate(value)) {
+      set: value => {
+        if (validate && value && !validate(value)) {
           console.error(`Invalid value provided at key: ${key}.`, value);
           return;
         }
-        if (marshal) {
+        if (marshal && value) {
           localStorage.setItem(key, marshal(value));
         } else if (typeof value === 'string') {
           localStorage.setItem(key, value);
@@ -131,7 +137,7 @@ export class Trusted {
         this.unregisterKey(key);
       },
       getDefaultValue: () => {
-        return accessorOptions.defaultValue;
+        return defaultValue;
       },
       getKey: () => {
         return key;
@@ -140,19 +146,39 @@ export class Trusted {
   }
 
   string<T extends string = string>(
+    accessorOptions: TrustedTypeAccessorOptions<T> & { defaultValue: T }
+  ): TrustedAccessor<T>;
+  string<T extends string = string>(
+    accessorOptions: TrustedTypeAccessorOptions<T>
+  ): TrustedAccessor<T | undefined>;
+  string<T extends string = string>(
     accessorOptions: TrustedTypeAccessorOptions<T>
   ) {
     return this.accessor<T>(accessorOptions);
   }
 
-  boolean(accessorOptions: TrustedTypeAccessorOptions<boolean>) {
-    return this.accessor<boolean>({
+  boolean<T extends boolean = boolean>(
+    accessorOptions: TrustedTypeAccessorOptions<T> & { defaultValue: T }
+  ): TrustedAccessor<T>;
+  boolean<T extends boolean = boolean>(
+    accessorOptions: TrustedTypeAccessorOptions<T>
+  ): TrustedAccessor<T | undefined>;
+  boolean<T extends boolean = boolean>(
+    accessorOptions: TrustedTypeAccessorOptions<T>
+  ) {
+    return this.accessor<T>({
       ...accessorOptions,
       marshal: JSON.stringify,
       unmarshal: JSON.parse,
     });
   }
 
+  object<T extends Record<any, any>>(
+    accessorOptions: TrustedTypeAccessorOptions<T> & { defaultValue: T }
+  ): TrustedAccessor<T>;
+  object<T extends Record<any, any>>(
+    accessorOptions: TrustedTypeAccessorOptions<T>
+  ): TrustedAccessor<T | undefined>;
   object<T extends Record<any, any>>(
     accessorOptions: TrustedTypeAccessorOptions<T>
   ) {
@@ -163,46 +189,79 @@ export class Trusted {
     });
   }
 
-  number(accessorOptions: TrustedTypeAccessorOptions<number>) {
-    return this.accessor<number>({
-      ...accessorOptions,
-      marshal: JSON.stringify,
-      unmarshal: JSON.parse,
-    });
-  }
-
-  array<T>(accessorOptions: TrustedTypeAccessorOptions<T[]>) {
-    return this.accessor<T[]>({
-      ...accessorOptions,
-      marshal: JSON.stringify,
-      unmarshal: JSON.parse,
-    });
-  }
-
-  map<K extends string | number | symbol, T>(
-    accessorOptions: TrustedTypeAccessorOptions<Map<K, T>>
+  number<T extends number = number>(
+    accessorOptions: TrustedTypeAccessorOptions<T> & { defaultValue: T }
+  ): TrustedAccessor<T>;
+  number<T extends number = number>(
+    accessorOptions: TrustedTypeAccessorOptions<T>
+  ): TrustedAccessor<T | undefined>;
+  number<T extends number = number>(
+    accessorOptions: TrustedTypeAccessorOptions<T>
   ) {
-    return this.accessor<Map<K, T>>({
+    return this.accessor<T>({
       ...accessorOptions,
-      marshal: (map: Map<K, T>) => JSON.stringify(Array.from(map)),
+      marshal: JSON.stringify,
+      unmarshal: JSON.parse,
+    });
+  }
+
+  array<T, A extends T[] = T[]>(
+    accessorOptions: TrustedTypeAccessorOptions<A> & {
+      defaultValue: A;
+    }
+  ): TrustedAccessor<A>;
+  array<T, A extends T[] = T[]>(
+    accessorOptions: TrustedTypeAccessorOptions<A>
+  ): TrustedAccessor<A | undefined>;
+  array<T, A extends T[] = T[]>(
+    accessorOptions: TrustedTypeAccessorOptions<A>
+  ) {
+    return this.accessor<A>({
+      ...accessorOptions,
+      marshal: JSON.stringify,
+      unmarshal: JSON.parse,
+    });
+  }
+
+  map<K extends string | number | symbol, T, M extends Map<K, T> = Map<K, T>>(
+    accessorOptions: TrustedTypeAccessorOptions<M> & { defaultValue: M }
+  ): TrustedAccessor<M>;
+  map<K extends string | number | symbol, T, M extends Map<K, T> = Map<K, T>>(
+    accessorOptions: TrustedTypeAccessorOptions<M>
+  ): TrustedAccessor<M | undefined>;
+  map<K extends string | number | symbol, T, M extends Map<K, T> = Map<K, T>>(
+    accessorOptions: TrustedTypeAccessorOptions<M>
+  ) {
+    return this.accessor<M>({
+      ...accessorOptions,
+      marshal: (map: M) => JSON.stringify(Array.from(map)),
       unmarshal: (localString: string) =>
-        new Map<K, T>(JSON.parse(localString)),
+        new Map<K, T>(JSON.parse(localString)) as M,
     });
   }
 
-  set<T>(accessorOptions: TrustedAccessorOptions<Set<T>>) {
-    return this.accessor<Set<T>>({
+  set<T, S extends Set<T> = Set<T>>(
+    accessorOptions: TrustedAccessorOptions<S>
+  ) {
+    return this.accessor<S>({
       ...accessorOptions,
-      marshal: (set: Set<T>) => JSON.stringify(Array.from(set)),
-      unmarshal: (localString: string) => new Set<T>(JSON.parse(localString)),
+      marshal: (set: S) => JSON.stringify(Array.from(set)),
+      unmarshal: (localString: string) =>
+        new Set<T>(JSON.parse(localString)) as S,
     });
   }
 
-  date(accessorOptions: TrustedAccessorOptions<Date>) {
-    return this.accessor<Date>({
+  date<T extends Date>(
+    accessorOptions: TrustedAccessorOptions<T> & { defaultValue: T }
+  ): TrustedAccessor<T>;
+  date<T extends Date>(
+    accessorOptions: TrustedAccessorOptions<T>
+  ): TrustedAccessor<T | undefined>;
+  date<T extends Date>(accessorOptions: TrustedAccessorOptions<T>) {
+    return this.accessor<T>({
       ...accessorOptions,
       marshal: value => value.toISOString(),
-      unmarshal: (localString: string) => new Date(localString),
+      unmarshal: (localString: string) => new Date(localString) as T,
     });
   }
 }

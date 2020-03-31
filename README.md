@@ -159,39 +159,39 @@ Unregister a key. Keys are never unregistered automatically.
 
 `accessor<T>: (options: TrustedAccessorOptions<T>) => TrustedAccessor<T>`
 
-Provision a new accessor. Accessors can be provided with custom marshaling for localStorage compatibility. Provisioning a new accessor will automatically register the provided key.
+Provision a new accessor. Accessors can be provided with custom marshaling for localStorage compatibility. Provisioning a new accessor will automatically register the provided key. Generally, the type of the accessor can be inferred from the schema or default value, but if no applicable options exist, the type will be `unknown` until manually specified.
 
-`string<T = string>: (options: TrustedTypeAccessorOptions<T>) => TrustedAccessor<T>`
+`string<T>: (options: TrustedTypeAccessorOptions<T>) => TrustedAccessor<T>`
 
 Provision a string accessor. Providing a type enables using the string accessor for unions or enums.
 
-`boolean: (options: TrustedTypeAccessorOptions<boolean>) => TrustedAccessor<boolean>`
+`boolean<T>: (options: TrustedTypeAccessorOptions<T>) => TrustedAccessor<T>`
 
 Provision a boolean accessor.
 
-`number: (options: TrustedTypeAccessorOptions<number>) => TrustedAccessor<number>`
+`number<T>: (options: TrustedTypeAccessorOptions<T>) => TrustedAccessor<T>`
 
 Provision a number accessor.
 
-`object<T extends Record<any, any>>: (options: TrustedTypeAccessorOptions<T>) => TrustedAccessor<T>`
+`object<T>: (options: TrustedTypeAccessorOptions<T>) => TrustedAccessor<T>`
 
 Provision an object accessor.
 
 `array<T>: (options: TrustedTypeAccessorOptions<T[]>) => TrustedAccessor<T[]>`
 
-Provision an array accessor.
+Provision an array accessor. Note that `T` is a singular type.
 
-`date<T extends Date>: (options: TrustedTypeAccessorOptions<T>) => TrustedTypeAccessor<T>`
+`date<T>: (options: TrustedTypeAccessorOptions<T>) => TrustedTypeAccessor<T>`
 
 Provision a date accessor.
 
-`map<K extends string | number | symbol, T>: (accessorOptions: TrustedTypeAccessorOptions<Map<K, T>>) => TrustedAccessor<Map<K, T>>`
+`map<K, T>: (accessorOptions: TrustedTypeAccessorOptions<Map<K, T>>) => TrustedAccessor<Map<K, T>>`
 
-Provision a Map accessor.
+Provision a Map accessor. Note that the `Map` type is constructed from `K` and `T`. `K` should be a valid key for a `Map`.
 
 `set<T>: (options: TrustedTypeAccessorOptions<Set<T>>) => TrustedAccessor<Set<T>>`
 
-Provision a Set accessor.
+Provision a Set accessor. Note that the `Set` type is constructed from `T`.
 
 ## TrustedAccessor
 
@@ -252,7 +252,7 @@ Only available for `Trusted.accessor`. Unmarshaling is used to reverse the marsh
 
 `get: () => T | undefined`
 
-Gets the unmarshaled value from localStorage. If the item is not found in localStorage, the default value will be returned. If the default value is returned, the localStorage value will be set to the marshaled default value.
+Gets the unmarshaled value from localStorage. If the item is not found in localStorage, the default value will be returned. If the default value is returned, the localStorage value will be set to the marshaled default value. Note that the return type will be `T` if there is a default value specified, otherwise `T | undefined`.
 
 `set: (value: T) => void`
 

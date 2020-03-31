@@ -12,7 +12,7 @@ beforeEach(() => {
 });
 
 test('Trusted can set and get an item', () => {
-  const accessor = new Trusted().accessor({ key: 'test' });
+  const accessor = new Trusted().accessor<string>({ key: 'test' });
   accessor.set('hello world');
   expect(accessor.get()).toBe('hello world');
 });
