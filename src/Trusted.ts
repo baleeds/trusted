@@ -72,13 +72,23 @@ export class Trusted {
       defaultValue,
     } = options;
 
-    if (defaultValue && validate && !validate(defaultValue)) {
+    if (
+      defaultValue !== undefined &&
+      defaultValue !== null &&
+      typeof validate === 'function' &&
+      !validate(defaultValue)
+    ) {
       throw new Error(
         `Invalid default value provided at key: ${key}.  Please check your yupSchema.`
       );
     }
 
-    if (defaultValue && typeof defaultValue !== 'string' && !marshal) {
+    if (
+      defaultValue !== undefined &&
+      defaultValue !== null &&
+      typeof defaultValue !== 'string' &&
+      typeof marshal !== 'function'
+    ) {
       throw new Error(
         `Invalid configuration provided at key: ${key}.  Non-string default values must be accompanied by a marshal function.`
       );
@@ -93,19 +103,23 @@ export class Trusted {
         let item;
         try {
           item = localStorage.getItem(key);
-          if (!item) {
+          if (item === undefined || item === null) {
             throw new Error(`Item not found at key: ${key}.`);
           }
 
-          item = unmarshal ? unmarshal(item) : item;
+          item = typeof unmarshal === 'function' ? unmarshal(item) : item;
 
-          if (validate && !validate(item as T)) {
+          if (typeof validate === 'function' && !validate(item as T)) {
             throw new Error(`Item is invalid at key: ${key}.`);
           }
 
           return item as T;
         } catch (e) {
-          if (marshal && defaultValue) {
+          if (
+            defaultValue !== undefined &&
+            defaultValue !== null &&
+            typeof marshal === 'function'
+          ) {
             localStorage.setItem(key, marshal(defaultValue));
           } else if (typeof defaultValue === 'string') {
             localStorage.setItem(key, defaultValue);
@@ -116,11 +130,20 @@ export class Trusted {
         }
       },
       set: value => {
-        if (validate && value && !validate(value)) {
+        if (
+          validate &&
+          value !== undefined &&
+          value !== null &&
+          !validate(value)
+        ) {
           console.error(`Invalid value provided at key: ${key}.`, value);
           return;
         }
-        if (marshal && value) {
+        if (
+          value !== undefined &&
+          value !== null &&
+          typeof marshal === 'function'
+        ) {
           localStorage.setItem(key, marshal(value));
         } else if (typeof value === 'string') {
           localStorage.setItem(key, value);

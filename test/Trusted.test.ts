@@ -134,6 +134,17 @@ test('Trusted number can set and get numbers', () => {
   expect(testNumber.get()).toBe(7);
 });
 
+test('Trusted numbers work with 0', () => {
+  const testNumber = new Trusted().number<number>({
+    key: 'test',
+    defaultValue: 42,
+  });
+  expect(testNumber.get()).toBe(42);
+  testNumber.set(0);
+  expect(testNumber.get()).toBe(0);
+  expect(localStorage.getItem('test')).toBe('0');
+});
+
 test('Trusted object can set and get objects', () => {
   const testObject = new Trusted().object<TestObject>({
     key: 'test',
