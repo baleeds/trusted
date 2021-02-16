@@ -1,5 +1,3 @@
-import { Schema } from 'yup';
-
 export interface TrustedOptions {
   namespace?: string;
 }
@@ -7,7 +5,7 @@ export interface TrustedOptions {
 export interface TrustedAccessorOptions<T> {
   key: string;
   defaultValue?: T;
-  yupSchema?: Schema<T>;
+  yupSchema?: any;
   validate?: (value: T) => boolean;
   skipRegistration?: boolean;
   unmarshal?: (localValue: string) => T;
