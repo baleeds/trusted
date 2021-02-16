@@ -1,3 +1,5 @@
+import { Schema } from 'yup';
+
 export interface TrustedOptions {
   namespace?: string;
 }
@@ -5,7 +7,7 @@ export interface TrustedOptions {
 export interface TrustedAccessorOptions<T> {
   key: string;
   defaultValue?: T;
-  yupSchema?: any;
+  yupSchema?: Schema<T>;
   validate?: (value: T) => boolean;
   skipRegistration?: boolean;
   unmarshal?: (localValue: string) => T;
@@ -127,7 +129,7 @@ export class Trusted {
           return defaultValue;
         }
       },
-      set: value => {
+      set: (value) => {
         if (
           validate &&
           value !== undefined &&
@@ -281,7 +283,7 @@ export class Trusted {
   date<T extends Date>(accessorOptions: TrustedAccessorOptions<T>) {
     return this.accessor<T>({
       ...accessorOptions,
-      marshal: value => value.toISOString(),
+      marshal: (value) => value.toISOString(),
       unmarshal: (localString: string) => new Date(localString) as T,
     });
   }

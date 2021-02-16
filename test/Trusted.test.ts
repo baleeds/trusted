@@ -94,7 +94,7 @@ test('Trusted does nothing when setting an invalid value', () => {
 });
 
 test('Trusted string can set and get strings', () => {
-  const testString = new Trusted().string({
+  const testString = new Trusted().string<string>({
     key: 'test',
     defaultValue: 'hello world',
     yupSchema: Yup.string().matches(/world/i),
@@ -107,7 +107,7 @@ test('Trusted string can set and get strings', () => {
 });
 
 test('Trusted boolean can set and get booleans', () => {
-  const testBoolean = new Trusted().boolean({
+  const testBoolean = new Trusted().boolean<boolean>({
     key: 'test',
     defaultValue: true,
     yupSchema: Yup.boolean().oneOf([true]),
@@ -122,7 +122,7 @@ test('Trusted boolean can set and get booleans', () => {
 });
 
 test('Trusted number can set and get numbers', () => {
-  const testNumber = new Trusted().number({
+  const testNumber = new Trusted().number<number>({
     key: 'test',
     defaultValue: 42,
     yupSchema: Yup.number().oneOf([7, 42]),
